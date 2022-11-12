@@ -9,6 +9,8 @@ using namespace std;
 
 #include "console.h"
 #include "simpio.h"
+#include "maze-types.h"
+#include "maze-graphics.h"
 
 static int getMazeDimension(string prompt,
                             int minDimension = 7, int maxDimension = 50) {

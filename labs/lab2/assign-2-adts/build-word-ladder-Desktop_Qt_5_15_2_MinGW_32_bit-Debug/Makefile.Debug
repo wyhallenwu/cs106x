@@ -3849,7 +3849,9 @@ debug/word-ladder.o: C:/Users/allenwu/Desktop/cs106x/labs/lab2/assign-2-adts/wor
 		C:/Users/allenwu/Desktop/cs106x/labs/lab2/assign-2-adts/word-ladder/lib/StanfordCPPLib/collections/stack.h \
 		C:/Users/allenwu/Desktop/cs106x/labs/lab2/assign-2-adts/word-ladder/lib/StanfordCPPLib/collections/vector.h \
 		C:/Users/allenwu/Desktop/cs106x/labs/lab2/assign-2-adts/word-ladder/lib/StanfordCPPLib/util/strlib.h \
-		C:/Users/allenwu/Desktop/cs106x/labs/lab2/assign-2-adts/word-ladder/lib/StanfordCPPLib/io/simpio.h
+		C:/Users/allenwu/Desktop/cs106x/labs/lab2/assign-2-adts/word-ladder/lib/StanfordCPPLib/io/simpio.h \
+		C:/Users/allenwu/Desktop/cs106x/labs/lab2/assign-2-adts/word-ladder/lib/StanfordCPPLib/collections/queue.h \
+		C:/Users/allenwu/Desktop/cs106x/labs/lab2/assign-2-adts/word-ladder/lib/StanfordCPPLib/collections/deque.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\word-ladder.o C:\Users\allenwu\Desktop\cs106x\labs\lab2\assign-2-adts\word-ladder\src\word-ladder.cpp
 
 ####### Install
