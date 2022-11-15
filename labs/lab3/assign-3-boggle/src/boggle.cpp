@@ -45,19 +45,33 @@ static const Lexicon english(kEnglishLanguageDatafile);
 
 //my adding
 struct State{
-    Set<GridLocation> used_locs;
+    string word;
     GridLocation current_loc;
-    string word = "";
+    Set<GridLocation> used_locs;
     bool operator<(const State& rhs) const{
         return word < rhs.word;
     }
+    State(){}
+    State(string word_, GridLocation current_loc_){
+        word = word_;
+        current_loc = current_loc_;
+        used_locs.add(current_loc);
+    }
+    State(const State& state){
+        word = state.word;
+        current_loc = state.current_loc;
+        used_locs = state.used_locs;
+    }
 };
 
-static void shuffle_init(int dimension, Grid<char>& grid);
+void shuffle_init(int dimension, Grid<char>& grid);
 bool is_valid_state(const State& state);
 bool has_prefix(const State& state);
 void search(State state, Set<State>& solutions, const Grid<char>& grid);
 Set<GridLocation> get_candidates(const State& state, const Grid<char>& grid);
+Set<State> human_turn(Map<string, State>& map);
+void computer_turn(Set<State>& solutions, Set<State>& human_finds);
+
 
 /**
  * Function: welcome
@@ -130,15 +144,21 @@ static void playBoggle() {
     shuffle_init(dimension, grid);
     // precompute all results
     Set<State> solutions;
-    State init_state;
-    search(init_state, solutions, grid);
+    for(auto& location: grid.locations()){
+        State init_state(string(1, toLowerCase(grid.get(location))),location);
+        search(init_state, solutions, grid);
+    }
+    Map<string, State> map;
+    for(auto& s: solutions){
+        map[s.word] = s;
+    }
     // begin games
-
-    cout << endl;
+    Set<State> human_finds = human_turn(map);
+    computer_turn(solutions, human_finds);
     cout << "This is where you'd play the game of Boggle" << endl;
 }
 
-static void shuffle_init(int dimension, Grid<char>& grid){
+void shuffle_init(int dimension, Grid<char>& grid){
     //random dice
     Vector<char> vec;
     if(dimension == 4){
@@ -165,7 +185,7 @@ static void shuffle_init(int dimension, Grid<char>& grid){
 }
 
 bool is_valid_state(const State& state){
-    if(state.word.size() >= 4 && english.contains(state.word)){
+    if(state.word.size() >= kMinLength && english.contains(state.word)){
         return true;
     }
     return false;
@@ -215,6 +235,46 @@ void search(State state, Set<State>& solutions, const Grid<char>& grid){
     }
 }
 
+Set<State> human_turn(Map<string, State>& map){
+    Set<State> human_finds;
+    while(true){
+        string word = getLine("please input your guess: ");
+        if (word == "q"){
+            break;
+        } else if (word.size() < kMinLength){
+            cout << "word length is less than 4" << endl;
+        } else if(!map.containsKey(word)){
+            cout << "word is not on the board" << endl;
+        } else if(map.containsKey(word)){
+            recordWordForPlayer(word, HUMAN);
+            human_finds.add(map[word]);
+            // highlight this word
+            for(auto& loc: map[word].used_locs){
+                highlightCube(loc.row, loc.col, true);
+            }
+            pause(kDelayAfterAllHighlights);
+            // refresh the board
+            for(auto& loc: map[word].used_locs){
+                highlightCube(loc.row, loc.col, false);
+            }
+        }
+    }
+    return human_finds;
+}
+
+void computer_turn(Set<State>& solutions, Set<State>& human_finds){
+    for(auto& state: solutions.difference(human_finds)){
+        recordWordForPlayer(state.word, COMPUTER);
+        for(auto& loc: state.used_locs){
+            highlightCube(loc.row, loc.col, true);
+        }
+        pause(kDelayAfterAllHighlights);
+        // refresh the board
+        for(auto& loc: state.used_locs){
+            highlightCube(loc.row, loc.col, false);
+        }
+    }
+}
 
 
 /**
