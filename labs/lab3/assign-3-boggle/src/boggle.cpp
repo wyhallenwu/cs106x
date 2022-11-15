@@ -17,6 +17,8 @@
 #include "map.h"
 #include "set.h"
 #include "lexicon.h"
+
+#include "gwindow.h"
 using namespace std;
 
 static const string kStandardCubes[16] = {
@@ -37,6 +39,9 @@ static const string kBigBoggleCubes[25] = {
 static const int kMinLength = 4;
 static const double kDelayBetweenHighlights = 100;
 static const double kDelayAfterAllHighlights = 500;
+
+//my adding
+static void shuffle_init(int dimension, Grid<char>& grid);
 
 /**
  * Function: welcome
@@ -104,8 +109,36 @@ static int getPreferredBoardSize() {
  */
 static void playBoggle() {
     int dimension = getPreferredBoardSize();
+    Grid<char> grid(dimension, dimension); // store the letters
     drawBoard(dimension, dimension);
+    shuffle_init(dimension, grid);
     cout << "This is where you'd play the game of Boggle" << endl;
+}
+
+static void shuffle_init(int dimension, Grid<char>& grid){
+    //random dice
+    Vector<char> vec;
+    if(dimension == 4){
+        for(int i=0; i < 16; i++){
+            vec.add(kStandardCubes[i][randomInteger(0, 5)]);
+        }
+    } else if(dimension == 5){
+        for(int i=0; i<25;i++){
+            vec.add(kBigBoggleCubes[i][randomInteger(0, 5)]);
+        }
+    }
+    // shuffle cubes
+    for(int i = 0; i<vec.size(); i++){
+        int index = randomInteger(i, vec.size() - 1);
+        char temp = vec[index];
+        vec[index] = vec[i];
+        vec[i] = temp;
+    }
+    // label cubes
+    for(int i = 0; i<vec.size();i++){
+        labelCube(i / dimension, i % dimension, vec[i]);
+        grid.set(i / dimension, i % dimension, vec[i]);
+    }
 }
 
 /**
