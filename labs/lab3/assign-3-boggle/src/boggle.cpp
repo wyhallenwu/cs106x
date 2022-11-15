@@ -40,8 +40,24 @@ static const int kMinLength = 4;
 static const double kDelayBetweenHighlights = 100;
 static const double kDelayAfterAllHighlights = 500;
 
+static const string kEnglishLanguageDatafile = "C:\\Users\\allenwu\\Desktop\\cs106x\\labs\\lab2\\assign-2-adts\\word-ladder\\res\\dictionary.txt";
+static const Lexicon english(kEnglishLanguageDatafile);
+
 //my adding
+struct State{
+    Set<GridLocation> used_locs;
+    GridLocation current_loc;
+    string word = "";
+    bool operator<(const State& rhs) const{
+        return word < rhs.word;
+    }
+};
+
 static void shuffle_init(int dimension, Grid<char>& grid);
+bool is_valid_state(const State& state);
+bool has_prefix(const State& state);
+void search(State state, Set<State>& solutions, const Grid<char>& grid);
+Set<GridLocation> get_candidates(const State& state, const Grid<char>& grid);
 
 /**
  * Function: welcome
@@ -112,6 +128,13 @@ static void playBoggle() {
     Grid<char> grid(dimension, dimension); // store the letters
     drawBoard(dimension, dimension);
     shuffle_init(dimension, grid);
+    // precompute all results
+    Set<State> solutions;
+    State init_state;
+    search(init_state, solutions, grid);
+    // begin games
+
+    cout << endl;
     cout << "This is where you'd play the game of Boggle" << endl;
 }
 
@@ -140,6 +163,59 @@ static void shuffle_init(int dimension, Grid<char>& grid){
         grid.set(i / dimension, i % dimension, vec[i]);
     }
 }
+
+bool is_valid_state(const State& state){
+    if(state.word.size() >= 4 && english.contains(state.word)){
+        return true;
+    }
+    return false;
+}
+
+bool has_prefix(const State& state){
+    if (english.containsPrefix(state.word))
+        return true;
+    return false;
+}
+
+Set<GridLocation> get_candidates(const State& state, const Grid<char>& grid){
+    Set<GridLocation> candidates;
+    for(auto& loc: state.current_loc.neighbors()){
+        if(grid.inBounds(loc) && loc != state.current_loc){
+            candidates.add(loc);
+        }
+    }
+    candidates.difference(state.used_locs);
+    return candidates;
+}
+
+void update_state(State& state, const GridLocation& candidate, const Grid<char>& grid){
+    state.word += toLowerCase(grid.get(candidate));
+    state.used_locs.add(candidate);
+    state.current_loc = candidate;
+}
+
+void back_state(State& state, const GridLocation& candidate, const GridLocation& current_loc){
+    state.word.pop_back();
+    state.used_locs.remove(candidate);
+    state.current_loc = current_loc;
+}
+
+void search(State state, Set<State>& solutions, const Grid<char>& grid){
+    if(is_valid_state(state)){
+        solutions.add(state);
+    }
+    if(!has_prefix(state)){
+        return;
+    }
+    for(auto& candidate: get_candidates(state, grid)){
+        GridLocation current_loc = state.current_loc;
+        update_state(state, candidate, grid);
+        search(state, solutions, grid);
+        back_state(state, candidate, current_loc);
+    }
+}
+
+
 
 /**
  * Function: main
