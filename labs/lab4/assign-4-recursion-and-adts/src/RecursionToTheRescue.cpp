@@ -80,6 +80,75 @@ bool canAllPatientsBeSeen(const Vector<Doctor>& doctors,
 
 /* * * * Disaster Planning * * * */
 
+Set<string> get_covered_cities(const Map<string, int>& covered_cities){
+    Set<string> covered;
+    for(auto& city: covered_cities.keys()){
+        if(covered_cities[city] > 0){
+            covered.add(city);
+        }
+    }
+    return covered;
+}
+
+bool is_valid_locations(const Set<string>& cities, const Map<string, int>& covered_cities, int& num_cities){
+    return get_covered_cities(covered_cities) == cities && num_cities >= 0;
+}
+
+
+Set<string> get_candidate_cities(Set<string>& cities, const Map<string, int>& covered_cities, const Map<string, Set<string>>& roadNetwork){
+    Set<string> ncities = cities;
+    // find all cities that can cover the uncovered cities
+    // TODO: not so good. can pass all except veryhard task.
+//    Set<string> covered = get_covered_cities(covered_cities);
+//    ncities.difference(covered);
+//    for(auto& city: ncities - covered){
+//        ncities.addAll(roadNetwork.get(city));
+//    }
+//    return ncities.difference(nlocations);
+//    return ncities - nlocations;
+      return ncities.difference(get_covered_cities(covered_cities));
+}
+
+void update_locations(string candidate_city, int& num_cities, Set<string>& nlocations, const Map<string, Set<string>>& roadNetwork, Map<string, int>& covered_cities){
+    num_cities -= 1;
+    nlocations.add(candidate_city);
+    covered_cities[candidate_city] += 1;
+    for(auto& city: roadNetwork[candidate_city]){
+        covered_cities[city] += 1;
+    }
+}
+
+void back_locations(string candidate_city, int& num_cities, Set<string>& nlocations, const Map<string, Set<string>>& roadNetwork, Map<string, int>& covered_cities){
+    num_cities += 1;
+    nlocations.remove(candidate_city);
+    covered_cities[candidate_city] = max(0, covered_cities[candidate_city] - 1);
+    for(auto& city: roadNetwork[candidate_city]){
+        covered_cities[city] = max(0, covered_cities[city] - 1);
+    }
+}
+// C:\Users\allenwu\Desktop\cs106x\labs\lab4\assign-4-recursion-and-adts\res\DisasterPlanning\BritishIsles.dst 4
+// C:\Users\allenwu\Desktop\cs106x\labs\lab4\assign-4-recursion-and-adts\res\DisasterPlanning\NortheastUS.dst 7
+// C:\Users\allenwu\Desktop\cs106x\labs\lab4\assign-4-recursion-and-adts\res\DisasterPlanning\WesternUS.dst 5
+
+void search(const Map<string, Set<string>>& roadNetwork,
+            int& numCities,
+            Set<string>& locations, Set<string>& nlocations, Set<string>& cities, Map<string, int>& covered_cities, bool& flag){
+    if(!flag && is_valid_locations(cities, covered_cities, numCities)){;
+        locations = nlocations;
+        flag = true;
+        return;
+    } else if(flag || numCities <= 0){
+        return;
+    }
+    Set<string> candidate_cities = get_candidate_cities(cities, covered_cities, roadNetwork);
+//    cout << "candidates: " << candidate_cities << endl;
+    for(auto& city: candidate_cities){
+        update_locations(city, numCities, nlocations, roadNetwork, covered_cities);
+        search(roadNetwork, numCities, locations, nlocations, cities, covered_cities, flag);
+        back_locations(city, numCities, nlocations, roadNetwork, covered_cities);
+    }
+}
+
 /**
  * Given a transportation grid for a country or region, along with the number of cities where disaster
  * supplies can be stockpiled, returns whether it's possible to stockpile disaster supplies in at most
@@ -99,8 +168,17 @@ bool canBeMadeDisasterReady(const Map<string, Set<string>>& roadNetwork,
                             int numCities,
                             Set<string>& locations) {
     // [TODO: Delete these lines and implement this function!]
-    (void)(roadNetwork, numCities, locations);
-    return false;
+    Set<string> cities;
+    Map<string, int> covered_cities;
+    for(auto& city: roadNetwork.keys()){
+        cities.add(city);
+        covered_cities[city] = 0;
+    }
+    auto nlocations = locations;
+    bool flag = false;
+    search(roadNetwork, numCities, locations, nlocations, cities, covered_cities, flag);
+    cout << locations.toString() << endl;
+    return flag;
 }
 
 
