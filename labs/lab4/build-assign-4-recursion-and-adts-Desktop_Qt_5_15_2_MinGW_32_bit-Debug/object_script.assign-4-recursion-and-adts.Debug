@@ -1,0 +1,12 @@
+debug/spl.o
+debug/Common.o
+debug/DisasterParser.o
+debug/DisasterVisualizer.o
+debug/DoctorsWithoutOrdersParser.o
+debug/ElectionParser.o
+debug/ElectionVisualizer.o
+debug/Main.o
+debug/Printing.o
+debug/RecursionToTheRescue.o
+debug/TestDriver.o
+debug/TheWindow.o

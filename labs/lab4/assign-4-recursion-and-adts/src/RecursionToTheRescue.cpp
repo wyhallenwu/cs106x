@@ -7,6 +7,55 @@ using namespace std;
 
 /* * * * Doctors Without Orders * * * */
 
+template<typename T>
+int get_index(Vector<T>& vec, T& v){
+    for(int i = 0; i < vec.size(); i++){
+        if(vec[i].name == v.name)
+            return i;
+    }
+    return -1;
+}
+
+bool is_valid(const Vector<Patient>& patients){
+    return patients.isEmpty();
+}
+
+Vector<int> get_all_valid_doctors(const Vector<Doctor>& doctors, const Patient& patient){
+    Vector<int> candidates;
+    for(int i = 0; i < doctors.size(); i++){
+        if(patient.hoursNeeded <= doctors[i].hoursFree)
+            candidates.add(i);
+    }
+    return candidates;
+}
+
+void update(Patient& patient, int doctor_index, Vector<Doctor>& doctors, Vector<Patient>& patients, Map<string, Set<string>>& nschedule){
+    patients.remove(0);
+    doctors[doctor_index].hoursFree -= patient.hoursNeeded;
+    nschedule[doctors[doctor_index].name].add(patient.name);
+}
+
+void back(Patient& patient, int doctor_index, Vector<Doctor>& doctors, Vector<Patient>& patients, Map<string, Set<string>>& nschedule){
+    patients.insert(0, patient);
+    doctors[doctor_index].hoursFree += patient.hoursNeeded;
+    nschedule[doctors[doctor_index].name].remove(patient.name);
+}
+
+void search(Vector<Doctor>& doctors, Vector<Patient>& patients, Map<string, Set<string>>& nschedule, Map<string, Set<string>>& schedule, bool& flag){
+    if(is_valid(patients)){
+        schedule = nschedule;
+        flag = true;
+        return;
+    }
+    Patient p = patients.front();
+    Vector<int> candidates = get_all_valid_doctors(doctors, p);
+    for(auto& candidate: candidates){
+        update(p, candidate, doctors, patients, nschedule);
+        search(doctors, patients, nschedule, schedule, flag);
+        back(p, candidate, doctors, patients, nschedule);
+    }
+}
+
 /**
  * Given a list of doctors and a list of patients, determines whether all the patients can
  * be seen. If so, this function fills in the schedule outparameter with a map from doctors
@@ -21,8 +70,12 @@ bool canAllPatientsBeSeen(const Vector<Doctor>& doctors,
                           const Vector<Patient>& patients,
                           Map<string, Set<string>>& schedule) {
     // [TODO: Delete these lines and implement this function!]
-    (void)(doctors, patients, schedule);
-    return false;
+    Vector<Doctor> ndoctors = doctors;
+    Vector<Patient> npatients = patients;
+    Map<string, Set<string>> nschedule = schedule;
+    bool flag = false;
+    search(ndoctors, npatients, nschedule, schedule, flag);
+    return flag;
 }
 
 /* * * * Disaster Planning * * * */
