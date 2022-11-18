@@ -184,6 +184,27 @@ bool canBeMadeDisasterReady(const Map<string, Set<string>>& roadNetwork,
 
 /* * * * Winning the Election * * * */
 
+int get_least_popularvotes(int popular_votes){
+    return popular_votes / 2 + 1;
+}
+
+void step(MinInfo& mininfo, const State& state, int& electoralVotesNeeded){
+    mininfo.popularVotesNeeded += get_least_popularvotes(state.popularVotes);
+    mininfo.statesUsed.push_back(state);
+    electoralVotesNeeded -= state.electoralVotes;
+}
+
+void backtrack(MinInfo& mininfo, const State& state, int& electoralVotesNeeded){
+    mininfo.popularVotesNeeded -= get_least_popularvotes(state.popularVotes);
+    mininfo.statesUsed.pop_back();
+    electoralVotesNeeded += state.electoralVotes;
+}
+
+void update_mininfo(MinInfo& origin, MinInfo& ninfo){
+    origin.popularVotesNeeded += ninfo.popularVotesNeeded;
+    origin.statesUsed.addAll(ninfo.statesUsed);
+}
+
 /**
  * Given a list of the states in the election, including their popular and electoral vote
  * totals, and the number of electoral votes needed, as well as the index of the lowest-indexed
@@ -194,12 +215,19 @@ bool canBeMadeDisasterReady(const Map<string, Set<string>>& roadNetwork,
  * @param states All the states in the election (plus DC, if appropriate)
  * @param minStateIndex the lowest index in the states Vector that should be considered
  */
-MinInfo minPopularVoteToGetAtLeast(int electoralVotesNeeded, const Vector<State>& states, int minStateIndex) {
+void minPopularVoteToGetAtLeast(int electoralVotesNeeded, const Vector<State>& states, int minStateIndex, MinInfo& result, MinInfo& intermediate) {
     // [TODO: Delete these lines and implement this function!]
-    (void)(electoralVotesNeeded);
-    (void)(states);
-    (void)(minStateIndex);
-    return { 0, {} };
+    if(electoralVotesNeeded <= 0){
+        if(intermediate.popularVotesNeeded < result.popularVotesNeeded){
+            result = intermediate;
+        }
+        return;
+    }
+    for(int i = minStateIndex; i < states.size(); i++){
+        step(intermediate, states[i], electoralVotesNeeded);
+        minPopularVoteToGetAtLeast(electoralVotesNeeded, states, i + 1, result, intermediate);
+        backtrack(intermediate, states[i], electoralVotesNeeded);
+    }
 }
 
 /**
@@ -212,6 +240,15 @@ MinInfo minPopularVoteToGetAtLeast(int electoralVotesNeeded, const Vector<State>
  */
 MinInfo minPopularVoteToWin(const Vector<State>& states) {
     // [TODO: Delete these lines and implement this function!]
-    (void)(states);
-    return { 0, {} };
+    int all_electoralVotes = [&]()->int{
+        int sum = 0;
+        for(auto& v: states){
+            sum += v.electoralVotes;
+        }
+        return sum;
+    }();
+    MinInfo result{INT_MAX, Vector<State>{}};
+    MinInfo intermediate{};
+    minPopularVoteToGetAtLeast(all_electoralVotes / 2 + 1, states, 0, result, intermediate);
+    return result;
 }
