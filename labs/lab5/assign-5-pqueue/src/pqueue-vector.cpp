@@ -4,25 +4,46 @@ using namespace std;
 VectorPQueue::VectorPQueue() {}
 VectorPQueue::~VectorPQueue() {}
 
-const string& VectorPQueue::peek() const {
-    // placeholder so method compiles..
-	// replace with your own implementation
-    return kEmptyString;
+const string& VectorPQueue::peek() const{
+    int index = this->find_min_index();
+    return elems[index];
 }
 
 string VectorPQueue::extractMin() {
-	// placeholder so method compiles..
-	// replace with your own implementation
-	return peek();
+    int index = find_min_index();
+    string find_result = elems[index];
+    elems.remove(index);
+    logSize -= 1;
+    return find_result;
 }
 
-void VectorPQueue::enqueue(const string& /* elem */) {
-	// placeholder so method compiles..
-	// replace with your own implementation
+void VectorPQueue::enqueue(const string& elem) {
+    elems.push_back(elem);
+    logSize += 1;
 }
 
-VectorPQueue *VectorPQueue::merge(VectorPQueue * /* one */, VectorPQueue * /* two */) {
-	// placeholder so method compiles..
-	// replace with your own implementation
-	return new VectorPQueue();
+VectorPQueue *VectorPQueue::merge(VectorPQueue *vec_pq1, VectorPQueue * vec_pq2) {
+    VectorPQueue *new_pq = new VectorPQueue();
+    for(auto& item: vec_pq1->elems){
+        new_pq->enqueue(item);
+    }
+    for(auto& item: vec_pq2->elems){
+        new_pq->enqueue(item);
+    }
+    return new_pq;
+}
+
+int VectorPQueue::find_min_index()const{
+    if(elems.isEmpty()){
+        return -1;
+    }
+    int index = 0;
+    string compare = elems[0];
+    for(int i = 0; i < this->elems.size(); i++){
+        if(elems[i] < compare){
+            index = i;
+            compare = elems[i];
+        }
+    }
+    return index;
 }

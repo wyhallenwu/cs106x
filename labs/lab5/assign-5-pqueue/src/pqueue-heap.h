@@ -16,4 +16,9 @@ public:
 private:
     // provide data methods and helper methods to
     // help realize the binary heap-backed PQueue
+    std::string* elems;
+    // logSize inheritance
+    int capacity;
+    void balance_topdown();
+    void balance_downtop();
 };
