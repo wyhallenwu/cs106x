@@ -21,4 +21,5 @@ private:
     int capacity;
     void balance_topdown();
     void balance_downtop();
+    void construct_heap_recursive(int index);
 };

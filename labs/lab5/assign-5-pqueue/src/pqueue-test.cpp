@@ -174,7 +174,6 @@ static void mergeTest(PQueue::PQueueType pqtype, const Lexicon& english, int siz
     }
 
     PQueue *pq = PQueue::merge(pq1, pq2);
-
     if (size1 + size2 != pq->size()) {
         error("Priority Queue merge clearly failed, because size of "
               "merge doesn't equal the sum of the two original sizes.");

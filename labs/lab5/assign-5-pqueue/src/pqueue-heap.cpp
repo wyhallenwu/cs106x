@@ -1,5 +1,6 @@
 #include "pqueue-heap.h"
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
 HeapPQueue::HeapPQueue():elems(new string[4]), capacity(4){logSize=0;}
@@ -67,8 +68,58 @@ void HeapPQueue::enqueue(const string& elem) {
     balance_downtop();
 }
 
-HeapPQueue *HeapPQueue::merge(HeapPQueue * /* one */, HeapPQueue * /* two */) {
-	// placeholder so method compiles..
-	// replace with your own implementation
-	return new HeapPQueue();
+// a simple version which is different from the lab instructions;
+// In original requirement, it concatenates the two hp, and construct the heap
+// down-top recursively.
+//HeapPQueue *HeapPQueue::merge(HeapPQueue * hp1, HeapPQueue * hp2) {
+//    HeapPQueue* hp = new HeapPQueue();
+//    hp->capacity = hp1->capacity + hp2->capacity;
+//    delete[] hp->elems;
+//    hp->elems = new string[hp->capacity];
+//    for(int i = 0; i < hp1->logSize; i++){
+//        hp->enqueue(hp1->elems[i]);
+//    }
+//    for(int i = 0; i < hp2->logSize; i++){
+//        hp->enqueue(hp2->elems[i]);
+//    }
+//    return hp;
+//}
+
+void HeapPQueue::construct_heap_recursive(int index){
+    int left = (index + 1) * 2 - 1;
+    int right = (index + 1) * 2;
+    if(left >= logSize){
+        return;
+    }
+    string l = elems[left];
+    string r = right < logSize? elems[right]:string(elems[left].size(), 'z');
+    int compare_index = l <= r? left: right;
+    if(elems[index] > elems[compare_index]){
+        elems[index].swap(elems[compare_index]);
+    } else{
+        return;
+    }
+    construct_from_raw(compare_index);
+}
+
+HeapPQueue* HeapPQueue::merge(HeapPQueue *hp1, HeapPQueue *hp2){
+    // initialize hp
+    HeapPQueue* hp = new HeapPQueue();
+    hp->capacity = hp1->capacity + hp2->capacity;
+    delete[] hp->elems;
+    hp->elems = new string[hp->capacity];
+    // concatenated
+    for(int i = 0; i < hp1->logSize; i++){
+        hp->elems[i] = hp1->elems[i];
+        hp->logSize++;
+    }
+    for(int i = 0; i< hp2->logSize; i++){
+        hp->elems[hp1->logSize + i] = hp2->elems[i];
+        hp->logSize++;
+    }
+    // construct
+    for(int i = hp->logSize - 1; i>=0;i--){
+        hp->construct_heap_recursive(i);
+    }
+    return hp;
 }
