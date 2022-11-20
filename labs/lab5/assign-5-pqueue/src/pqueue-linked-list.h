@@ -2,6 +2,14 @@
 #include "pqueue.h"
 #include <string>
 
+struct node{
+    node* next;
+    node* prev;
+    std::string elem;
+    node():next(nullptr), prev(nullptr){}
+    explicit node(std::string elem_):next(this), prev(this), elem(elem_){}
+};
+
 class LinkedListPQueue : public PQueue {
 public:
 	LinkedListPQueue();
@@ -14,6 +22,6 @@ public:
     const std::string& peek() const;
 	
 private:
-	// provide data methods and helper methods to
-    // help realize the linked list-backed PQueue
+    node* head = nullptr;
+    //logSize inheritance
 };

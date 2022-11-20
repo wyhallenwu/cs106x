@@ -99,7 +99,7 @@ void HeapPQueue::construct_heap_recursive(int index){
     } else{
         return;
     }
-    construct_from_raw(compare_index);
+    construct_heap_recursive(compare_index);
 }
 
 HeapPQueue* HeapPQueue::merge(HeapPQueue *hp1, HeapPQueue *hp2){
