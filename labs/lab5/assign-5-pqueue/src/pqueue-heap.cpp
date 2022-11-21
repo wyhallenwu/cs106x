@@ -102,19 +102,19 @@ void HeapPQueue::construct_heap_recursive(int index){
     construct_heap_recursive(compare_index);
 }
 
-HeapPQueue* HeapPQueue::merge(HeapPQueue *hp1, HeapPQueue *hp2){
+HeapPQueue* HeapPQueue::merge(HeapPQueue *one, HeapPQueue *two){
     // initialize hp
     HeapPQueue* hp = new HeapPQueue();
-    hp->capacity = hp1->capacity + hp2->capacity;
+    hp->capacity = one->capacity + two->capacity;
     delete[] hp->elems;
     hp->elems = new string[hp->capacity];
     // concatenated
-    for(int i = 0; i < hp1->logSize; i++){
-        hp->elems[i] = hp1->elems[i];
+    for(int i = 0; i < one->logSize; i++){
+        hp->elems[i] = one->elems[i];
         hp->logSize++;
     }
-    for(int i = 0; i< hp2->logSize; i++){
-        hp->elems[hp1->logSize + i] = hp2->elems[i];
+    for(int i = 0; i< two->logSize; i++){
+        hp->elems[one->logSize + i] = two->elems[i];
         hp->logSize++;
     }
     // construct

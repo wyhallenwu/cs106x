@@ -22,12 +22,12 @@ void VectorPQueue::enqueue(const string& elem) {
     logSize += 1;
 }
 
-VectorPQueue *VectorPQueue::merge(VectorPQueue *vec_pq1, VectorPQueue * vec_pq2) {
+VectorPQueue *VectorPQueue::merge(VectorPQueue *one, VectorPQueue * two) {
     VectorPQueue *new_pq = new VectorPQueue();
-    for(auto& item: vec_pq1->elems){
+    for(auto& item: one->elems){
         new_pq->enqueue(item);
     }
-    for(auto& item: vec_pq2->elems){
+    for(auto& item: two->elems){
         new_pq->enqueue(item);
     }
     return new_pq;

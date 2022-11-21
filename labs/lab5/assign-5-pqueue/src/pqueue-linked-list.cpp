@@ -54,15 +54,15 @@ void LinkedListPQueue::enqueue(const string& elem) {
     logSize++;
 }
 
-LinkedListPQueue *LinkedListPQueue::merge(LinkedListPQueue * lp1, LinkedListPQueue * lp2) {
+LinkedListPQueue *LinkedListPQueue::merge(LinkedListPQueue * one, LinkedListPQueue * two) {
     LinkedListPQueue* merge_lp = new LinkedListPQueue();
-    node* lp1_index = lp1->head;
-    node* lp2_index = lp2->head;
-    for(int i = 0; i < lp1->logSize; i++){
+    node* lp1_index = one->head;
+    node* lp2_index = two->head;
+    for(int i = 0; i < one->logSize; i++){
         merge_lp->enqueue(lp1_index->elem);
         lp1_index = lp1_index->next;
     }
-    for(int i = 0; i < lp2->logSize; i++){
+    for(int i = 0; i < two->logSize; i++){
         merge_lp->enqueue(lp2_index->elem);
         lp2_index = lp2_index->next;
     }

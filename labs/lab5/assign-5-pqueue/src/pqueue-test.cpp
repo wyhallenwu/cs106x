@@ -64,6 +64,7 @@ static void extractElements(PQueue::PQueueType pqtype, PQueue *pq, const Vector<
     int numExtractionsExpected = pq->size();
     while (!pq->isEmpty()) {
         string next = pq->extractMin();
+        //cout << "count: " << count << " next: " << next << " origin: " << expectedElems[count] << endl;
         if (count == expectedElems.size()) error("More elements left to dequeue after extracting all expected elements.");
         if(next != expectedElems[count]) error("Priority Queue is returning elements in the wrong order.");
         count++;
